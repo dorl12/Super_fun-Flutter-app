@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "326839314723",
+    "firebase_url": "https://superfun-84e11-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "superfun-84e11",
+    "storage_bucket": "superfun-84e11.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:326839314723:android:54f3a93146f0e8eadd8496",
+        "android_client_info": {
+          "package_name": "com.superfun.super_fun"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "326839314723-m7llt37h6uecv0p6ur1js43r5p01qn4u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvMSuY_Amu94LjHnnw1k32_ADMfFvfWww"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "326839314723-m7llt37h6uecv0p6ur1js43r5p01qn4u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "326839314723-gf2a3snm3c3ktvlje8vn59kksq7d5vv0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.superfun.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
