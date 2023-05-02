@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:super_fun/utils/colors.dart';
 
 class reusable_widget{
   //the bckg of the app
   BoxDecoration myBoxDecoration() {
-    return const BoxDecoration(gradient: LinearGradient(colors: [
-      MyColors.primaryBckgColor, MyColors.secondaryBckgColor
-    ],
-        begin: Alignment.topCenter, end: Alignment.center));
+    return BoxDecoration(
+        gradient: LinearGradient(colors: [
+          hexStringToColor("CB2B93"),
+          hexStringToColor("9546C4"),
+          hexStringToColor("5E61F4")
+        ], begin: Alignment.topCenter, end: Alignment.bottomCenter));
   }
 
+}
+
+Divider myDivider({indent=20, thickness =2}){
+  return Divider(
+    color: Colors.white54,
+    indent: indent.toDouble(),
+    endIndent: indent.toDouble(),
+    thickness: thickness.toDouble(),
+  );
 }
 
 Image logoWidget(String imageName) {
@@ -77,4 +87,11 @@ Container firebaseUIButton(BuildContext context, String title, Function onTap) {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)))),
     ),
   );
+}
+hexStringToColor(String hexColor) {
+  hexColor = hexColor.toUpperCase().replaceAll("#", "");
+  if (hexColor.length == 6) {
+    hexColor = "FF" + hexColor;
+  }
+  return Color(int.parse(hexColor, radix: 16));
 }

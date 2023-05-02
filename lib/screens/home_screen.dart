@@ -23,8 +23,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text(MyStrings.welcomeMessage),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          MyStrings.homeScreenTitle,
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
       ),
       body: Container(decoration: reusable_widget().myBoxDecoration(), child: const MyCustomForm()),
     );
@@ -39,13 +45,9 @@ class MyCustomForm extends StatefulWidget {
 }
 
 class _MyCustomFormState extends State<MyCustomForm> {
-  final userId = 'Eli'; //todo - change to login id
-  DatabaseReference clients_ref = FirebaseDatabase.instance.ref("data/Clients/Eli"); //todo - make use of userid
   String _inputValue = '';
   List<String> _items = [];
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-
-  final TextEditingController _textFieldController = TextEditingController();
 
   void _addItem(input) {
     final newIndex = _items.length;
@@ -65,18 +67,32 @@ class _MyCustomFormState extends State<MyCustomForm> {
 
   @override
   Widget build(BuildContext context) {
+    String userId = "none";
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user!=null){
+      userId = user.uid;
+    } else {print("error singing userid:"+ userId);}
+    DatabaseReference clients_ref = FirebaseDatabase.instance.ref("data/Clients/${userId}"); //todo - make use of userid
 
-    //userNotSignedIn(context); //todo - put in better place
+    //userNotSignedIn(context); //todo - replace with a check in signin
 
     return Padding(
-    padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0),
-    child: Column(
+    padding: const EdgeInsets.fromLTRB(0.0, 90.0, 0.0, 0.0),
+    child:
+    Column(
     children: [
     _buildInputRow(),
     const SizedBox(height: 10),
-    Text(MyStrings.itemsListHeader, style: TextStyle(fontSize: 20,  fontWeight: FontWeight.bold,)),
-    _buildAnimatedList(),
-    _buildNavigationButton()
+     myDivider(),
+      Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: Text(MyStrings.itemsListHeader, style: TextStyle(fontSize: 20, fontStyle: FontStyle.italic, color: Colors.white)),
+      ),
+      _buildAnimatedList(),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: firebaseUIButton(context, "Start Shopping", () {_buildNavigationButton(userId, clients_ref);}),
+      ),
     ],
     ),
     );
@@ -98,61 +114,53 @@ class _MyCustomFormState extends State<MyCustomForm> {
   }
 
   Widget _buildInputRow(){
-    return Row(
-        children: <Widget>[
-          Expanded(
-            child: TextField(
-              controller: _textFieldController,
-              onChanged: (value) {
-                setState(() {
-                  _inputValue = value;
-                });
-              },
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Enter an item name',
-              ),
+    TextEditingController _itemController = TextEditingController();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+          children: <Widget>[
+            Expanded(
+      child: reusableTextField("Enter an item name", Icons.abc, false,_itemController),
             ),
-          ),
-          SizedBox(width: 10),
-          IconButton(onPressed: (){
-            //_items.add(_inputValue); //todo delete
-            _addItem(_inputValue);
-          }, icon: Icon(Icons.add_shopping_cart_rounded)),
-        ]
+            SizedBox(width: 10),
+            IconButton(onPressed: (){
+              _addItem(_itemController.text);
+            }, icon: Icon(Icons.add_shopping_cart_rounded, color: Colors.white,)),
+          ]
+      ),
     );
   }
 
   Widget _buildAnimatedList(){
     return Expanded(
-      child: AnimatedList(
-        key: _listKey,
-        initialItemCount: 0,
-        itemBuilder: (_, index, animation) {
-          return SizeTransition(
-            key: UniqueKey(),
-            sizeFactor: animation,
-            child: Card(
-              margin: const EdgeInsets.all(2),
-              elevation: 2,
-              color: Colors.blue,
-              child: ListTile(
-                contentPadding: const EdgeInsets.fromLTRB(10,0,10,0),
-                title:
-                Text(_items[index], style: const TextStyle(fontSize: 16)),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => _removeItem(index),
+        child: AnimatedList(
+          padding: const EdgeInsets.fromLTRB(0,10,0,10),
+          key: _listKey,
+          initialItemCount: 0,
+          itemBuilder: (_, index, animation) {
+            return SizeTransition(
+              key: UniqueKey(),
+              sizeFactor: animation,
+              child: Card(
+                margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 10),
+                elevation: 2,
+                color: Color(0xB7FFFFFF),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.fromLTRB(20,0,10,0),
+                  title:
+                  Text(_items[index], style: const TextStyle(fontSize: 20)),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.redAccent,),
+                    onPressed: () => _removeItem(index),
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-      ),
+            );
+          },
+        ),
     );
   }
-  Widget _buildNavigationButton(){
-    return TextButton(onPressed: () {
+  void _buildNavigationButton(userId, clients_ref){
       //save list
       List<String> res = [];
       callGetGroceryKeys(_items, userId, res);
@@ -164,11 +172,9 @@ class _MyCustomFormState extends State<MyCustomForm> {
       //move to nav page
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => SignInScreen()), //todo - change back to navigation
+        MaterialPageRoute(builder: (context) => navigation()),
       );
-    },
-      child: Text('Start Shopping'),);
-  }
+    }
 }
 
 Future<void> callGetGroceryKeys(products, userId, res) async {

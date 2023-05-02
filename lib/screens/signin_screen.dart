@@ -3,8 +3,8 @@ import 'package:super_fun/reusable_widgets/reusable_widget.dart';
 import 'package:super_fun/screens/home_screen.dart';
 import 'package:super_fun/screens/reset_password.dart';
 import 'package:super_fun/screens/signup_screen.dart';
-import 'package:super_fun/utils/color_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:super_fun/utils/strings.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -22,18 +22,17 @@ class _SignInScreenState extends State<SignInScreen> {
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [
-          hexStringToColor("CB2B93"),
-          hexStringToColor("9546C4"),
-          hexStringToColor("5E61F4")
-        ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+        decoration: reusable_widget().myBoxDecoration(),
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.fromLTRB(
-                20, MediaQuery.of(context).size.height * 0.2, 20, 0),
+                20, MediaQuery.of(context).size.height * 0.08, 20, 0),
             child: Column(
               children: <Widget>[
+                Text(MyStrings.welcomeMessage, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 30)),
+                const SizedBox(
+                  height: 30,
+                ),
                 logoWidget("assets/images/logo1.png"),
                 const SizedBox(
                   height: 30,
