@@ -131,7 +131,7 @@ class _navilist extends State<navilist> {
                       margin: const EdgeInsets.symmetric(
                           vertical: 2, horizontal: 10),
                       elevation: 2,
-                      color: Color(0xC383FF49),
+                      color: Color(0xC383FF5d),
                       child: ListTile(
                         leading: Checkbox(
                           value: true,

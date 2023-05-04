@@ -5,9 +5,11 @@ class reusable_widget{
   BoxDecoration myBoxDecoration() {
     return BoxDecoration(
         gradient: LinearGradient(colors: [
-          hexStringToColor("CB2B93"),
-          hexStringToColor("9546C4"),
-          hexStringToColor("5E61F4")
+          // hexStringToColor("CB2B93"),
+          // hexStringToColor("9546C4"),
+          // hexStringToColor("5E61F4")
+          hexStringToColor("00a1fc"),
+          hexStringToColor("00decc")
         ], begin: Alignment.topCenter, end: Alignment.bottomCenter));
   }
 
