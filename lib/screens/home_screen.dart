@@ -72,7 +72,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
     if (user!=null){
       userId = user.uid;
     } else {print("error singing userid:"+ userId);}
-    DatabaseReference clients_ref = FirebaseDatabase.instance.ref("data/Clients/${userId}"); //todo - make use of userid
+    DatabaseReference clients_ref = FirebaseDatabase.instance.ref("data/Clients/${userId}");
 
     //userNotSignedIn(context); //todo - replace with a check in signin
 
@@ -163,17 +163,26 @@ class _MyCustomFormState extends State<MyCustomForm> {
   void _buildNavigationButton(userId, clients_ref){
       //save list
       List<String> res = [];
-      callGetGroceryKeys(_items, userId, res);
-      clients_ref.set({
-        'list': jsonEncode(_items),
-        'sfsfd': jsonEncode(res),
-      });
+      try {
+        callGetGroceryKeys(_items, userId, res);
+        clients_ref.set({
+          'list': jsonEncode(_items),
+          'sfsfd': jsonEncode(res),
+        });
 
-      //move to nav page
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => navigation()),
-      );
+        //move to nav page
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => navigation()),
+        );
+      }
+      catch (e){ //todo - handle the error correctly
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text("a"),
+            )
+        );
+      }
     }
 }
 
@@ -191,11 +200,15 @@ Future<void> callGetGroceryKeys(products, userId, res) async {
     // Handle the result of the function call
     print("result: ${result.data}, products: ${products}, userid: ${userId}");
     res = result.data;
-  } on FirebaseFunctionsException catch (e) {
+  }
+  on FirebaseFunctionsException catch (e) {
     // Handle any errors that occur during the function call
     print('Error: ${e.code} ${e.message}');
-  } catch (e) {
-    print('Error: $e');
+    //throw Exception("a");
+  }
+  catch (e) {
+    print(e);
+    //throw Exception("b");
   }
 }
 

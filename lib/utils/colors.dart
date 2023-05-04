@@ -11,4 +11,5 @@ class MyColors {
   static const Color textColor = Colors.black;
   static const Color TextColor_Button = Colors.blue;
 
+  static const Color instructionNavColor = Colors.white;
 }
