@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:super_fun/utils/colors.dart';
 import '../reusable_widgets/reusable_widget.dart';
+import 'home_screen.dart';
 
-class navigation extends StatefulWidget {
+class Navigation extends StatefulWidget {
   @override
   _navigation createState() => _navigation();
 }
 
-class _navigation extends State<navigation> {
-
+class _navigation extends State<Navigation> {
+  callback(i){   //callbacks tut: https://www.youtube.com/watch?v=zq-JGQxNwtU
+    setState(() {
+      index = i;
+    });
+  }
+  int index = 0;
   @override
   Widget build(BuildContext context) {
+    List<Widget> bodyWidgets = [navilist(callbackFunction:callback), naviInstructions(callbackFunction:callback), naviFinish(callbackFunction:callback)]; //the subpages of this page
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -21,21 +28,25 @@ class _navigation extends State<navigation> {
       style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
       ),
       ),
-      body: navilist(), //todo - something to switch between the bodies
+      body: bodyWidgets[index], //todo - something to switch between the bodies
     );
   }
 
 }
 
 class navilist extends StatefulWidget {
+  navilist({required this.callbackFunction});
+  final Function callbackFunction;
   @override
-  _navilist createState() => _navilist();
+  _navilist createState() => _navilist(callbackFunction: callbackFunction);
 }
 
 class _navilist extends State<navilist> {
   final List<String> items = [    "Apples",    "Bananas", "Qiwi", "Melon",    "Oranges",    "Grapes",    "Pineapple",    "Watermelon",  ];
   int currentItemIndex = 0;
   List<String> checkedItems = [];
+  _navilist({required this.callbackFunction});
+  final Function callbackFunction;
 
   void markItemAsChecked(int index) {
     setState(() {
@@ -136,7 +147,9 @@ class _navilist extends State<navilist> {
               ),
             ),
             ElevatedButton(
-              onPressed: () => goToNextItem(),
+              onPressed: () => {
+                callbackFunction(1),
+              },
               child: const Text("Next Department"),
             ),
           ],
@@ -147,11 +160,15 @@ class _navilist extends State<navilist> {
 }
 
 class naviInstructions extends StatefulWidget {
+  naviInstructions({required this.callbackFunction});
+  final Function callbackFunction;
   @override
-  _naviInstructions createState() => _naviInstructions();
+  _naviInstructions createState() => _naviInstructions(callbackFunction: callbackFunction);
 }
 
 class _naviInstructions extends State<naviInstructions> {
+  _naviInstructions({required this.callbackFunction});
+  final Function callbackFunction;
   @override
   Widget build(BuildContext context) {
     return nav_instruction();
@@ -187,8 +204,65 @@ class _naviInstructions extends State<naviInstructions> {
             style: TextStyle(color: MyColors.instructionNavColor, fontSize: 18.0),
           ),
           ElevatedButton(
-            onPressed: () => {},
-            child: const Text("Show me the items"),
+            onPressed: () => {
+              callbackFunction(0),
+            },
+            child: const Text("Show me next items"),
+          ),
+        ],
+      ),
+    );
+
+  }
+}
+
+class naviFinish extends StatefulWidget {
+  naviFinish({required this.callbackFunction});
+  final Function callbackFunction;
+  @override
+  _naviFinish createState() => _naviFinish(callbackFunction: callbackFunction);
+}
+
+class _naviFinish extends State<naviFinish> {
+  _naviFinish({required this.callbackFunction});
+  final Function callbackFunction;
+  @override
+  Widget build(BuildContext context) {
+    return nav_instruction();
+  }
+  Container nav_instruction() {
+    return Container(
+      width: double.infinity,
+      decoration: reusable_widget().myBoxDecoration(),
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(height: 16.0),
+          Text(
+            'Mission Complete!', //todo - change to a query
+            style: TextStyle(color: MyColors.instructionNavColor, fontSize: 44.0),
+          ),
+          SizedBox(height: 30.0),
+          Image.asset(
+            'assets/images/logo1.png',
+            color: Colors.white,
+            width: 200.0,
+            height: 200.0,
+          ),
+          SizedBox(height: 30.0),
+          Text(
+            'Your cart is full now :)',
+            style: TextStyle(color: MyColors.instructionNavColor, fontSize: 18.0),
+          ),
+          SizedBox(height: 20.0),
+          ElevatedButton(
+            onPressed: () => {
+            Navigator.push(context,
+            MaterialPageRoute(builder: (context) => HomeScreen())),
+            },
+            child: const Text("Finish"),
           ),
         ],
       ),

@@ -173,7 +173,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
         //move to nav page
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => navigation()),
+          MaterialPageRoute(builder: (context) => Navigation()),
         );
       }
       catch (e){ //todo - handle the error correctly
