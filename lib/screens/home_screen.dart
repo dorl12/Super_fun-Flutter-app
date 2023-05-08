@@ -6,10 +6,12 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 import 'package:flutter/material.dart';
 import 'package:super_fun/reusable_widgets/reusable_widget.dart';
+import 'package:super_fun/screens/SpeechScreen.dart';
 import 'package:super_fun/utils/strings.dart';
-import 'signin_screen.dart';
-import 'navigation.dart';
-import 'package:super_fun/screens/signin_screen.dart';
+import '../reusable_widgets/NavBar.dart';
+import 'authentication_screens/signin_screen.dart';
+import 'navigation_screens/navigation.dart';
+import 'package:super_fun/screens/authentication_screens/signin_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -32,7 +34,9 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ),
-      body: Container(decoration: reusable_widget().myBoxDecoration(), child: const MyCustomForm()),
+      endDrawer: NavBar(),
+      body: SpeechScreen(),
+      //body: Container(decoration: reusable_widget().myBoxDecoration(), child: const MyCustomForm()),
     );
   }
 }

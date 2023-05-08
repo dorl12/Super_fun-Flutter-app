@@ -34,6 +34,11 @@ dependencies:
   firebase_auth: ^4.4.0
   firebase_core_platform_interface: 4.6.0
   firebase_messaging: ^14.4.1
+  # speech to text dependencies:
+  speech_to_text: ^6.1.1
+  highlight_text: ^1.6.0
+  avatar_glow: ^2.0.2
+
   flutter:
     sdk: flutter
 

@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:super_fun/reusable_widgets/reusable_widget.dart';
 import 'package:super_fun/screens/home_screen.dart';
-import 'package:super_fun/screens/reset_password.dart';
-import 'package:super_fun/screens/signup_screen.dart';
+import 'package:super_fun/screens/authentication_screens/reset_password.dart';
+import 'package:super_fun/screens/authentication_screens/signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:super_fun/utils/strings.dart';
 
+//tutorial:https://www.youtube.com/watch?v=GvIoBgmNgQw
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
 
