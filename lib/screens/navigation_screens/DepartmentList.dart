@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../reusable_widgets/reusable_widget.dart';
+import 'naviManager.dart';
 
 
 class DepartmentList extends StatefulWidget {
@@ -12,7 +13,8 @@ class DepartmentList extends StatefulWidget {
 }
 
 class _departmentList extends State<DepartmentList> {
-  final List<String> items = [    "Apples",    "Bananas", "Qiwi", "Melon",    "Oranges",    "Grapes",    "Pineapple",    "Watermelon",  ];
+  //  final List<String> items = [    "Apples",    "Bananas", "Qiwi", "Melon",    "Oranges",    "Grapes",    "Pineapple",    "Watermelon",  ];
+  final List<String> items = ListStates.currDepartmentProducts;
   int currentItemIndex = 0;
   List<String> checkedItems = [];
   _departmentList({required this.callbackFunction});

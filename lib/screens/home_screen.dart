@@ -10,6 +10,7 @@ import 'package:super_fun/screens/SpeechScreen.dart';
 import 'package:super_fun/utils/strings.dart';
 import '../reusable_widgets/NavBar.dart';
 import 'authentication_screens/signin_screen.dart';
+import 'navigation_screens/naviManager.dart';
 import 'navigation_screens/navigation.dart';
 import 'package:super_fun/screens/authentication_screens/signin_screen.dart';
 
@@ -35,8 +36,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       endDrawer: NavBar(),
-      body: SpeechScreen(),
-      //body: Container(decoration: reusable_widget().myBoxDecoration(), child: const MyCustomForm()),
+      //body: SpeechScreen(),
+      body: Container(decoration: reusable_widget().myBoxDecoration(), child: const MyCustomForm()),
     );
   }
 }
@@ -174,6 +175,18 @@ class _MyCustomFormState extends State<MyCustomForm> {
           'sfsfd': jsonEncode(res),
         });
 
+        ListStates.allProducts = _items; //after success - update list in local 'cache'
+
+        //todo add this section after callGetDepartmentItems working
+         //callGetDepartmentsByOrder(userId, res);
+        // ListStates.allDepartments = res; //save all departments, by order
+        // ListStates.leftDepartments = res; //on beginning write all departments
+        // var nextDepartment = res[0];
+
+        //get sub-list of first department todo - use nextDepartment insted of "dairy"
+        callGetDepartmentItems("Dairy", userId, res);
+        ListStates.currDepartmentProducts = res;
+
         //move to nav page
         Navigator.push(
           context,
@@ -202,7 +215,58 @@ Future<void> callGetGroceryKeys(products, userId, res) async {
       'userId': userId,
     });
     // Handle the result of the function call
-    print("result: ${result.data}, products: ${products}, userid: ${userId}");
+    print("result of GetGroceryKeys: ${result.data}, products: ${products}, userid: ${userId}");
+    res = result.data;
+  }
+  on FirebaseFunctionsException catch (e) {
+    // Handle any errors that occur during the function call
+    print('Error: ${e.code} ${e.message}');
+    //throw Exception("a");
+  }
+  catch (e) {
+    print(e);
+    //throw Exception("b");
+  }
+}
+
+Future<void> callGetDepartmentItems(departmentName, userId, res) async {
+  // Initialize Firebase Functions
+  FirebaseFunctions functions = FirebaseFunctions.instance;
+
+  // Call the getDepartmentItems function with the department,userID argument
+  HttpsCallable callable = functions.httpsCallable('getDepartmentItems');
+  try {
+    final result = await callable.call(<String, dynamic>{
+      'departmentName': departmentName,
+      'userId': userId,
+    });
+    // Handle the result of the function call
+    print("result of GetDepartmentItems: ${result.data}, departmentName: ${departmentName}, userid: ${userId}");
+    res = result.data;
+  }
+  on FirebaseFunctionsException catch (e) {
+    // Handle any errors that occur during the function call
+    print('Error: ${e.code} ${e.message}');
+    //throw Exception("a");
+  }
+  catch (e) {
+    print(e);
+    //throw Exception("b");
+  }
+}
+
+Future<void> callGetDepartmentsByOrder(userId, res) async {
+  // Initialize Firebase Functions
+  FirebaseFunctions functions = FirebaseFunctions.instance;
+
+  // Call the getGroceryKeys function with the products argument
+  HttpsCallable callable = functions.httpsCallable('getGroceryKeys');
+  try {
+    final result = await callable.call(<String, dynamic>{
+      'userId': userId,
+    });
+    // Handle the result of the function call
+    print("result of GetDepartmentsByOrder: ${result.data}, userid: ${userId}");
     res = result.data;
   }
   on FirebaseFunctionsException catch (e) {
