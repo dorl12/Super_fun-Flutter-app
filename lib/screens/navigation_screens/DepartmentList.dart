@@ -68,7 +68,7 @@ class _departmentList extends State<DepartmentList> {
                   ),
                 ),
                 Text(
-                  "Fruits",
+                  ListStates.leftDepartments[0],
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.white70,
@@ -120,7 +120,9 @@ class _departmentList extends State<DepartmentList> {
             ),
             ElevatedButton(
               onPressed: () => {
-                callbackFunction(1),
+                ListStates.leftDepartments.removeAt(0),
+                if(ListStates.leftDepartments.isEmpty){callbackFunction(2)}
+                else {callbackFunction(1)},
               },
               child: const Text("Next Department"),
             ),

@@ -1,18 +1,15 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 
 import 'package:flutter/material.dart';
 import 'package:super_fun/reusable_widgets/reusable_widget.dart';
-import 'package:super_fun/screens/SpeechScreen.dart';
 import 'package:super_fun/utils/strings.dart';
 import '../reusable_widgets/NavBar.dart';
 import 'authentication_screens/signin_screen.dart';
 import 'navigation_screens/naviManager.dart';
 import 'navigation_screens/navigation.dart';
-import 'package:super_fun/screens/authentication_screens/signin_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -166,26 +163,14 @@ class _MyCustomFormState extends State<MyCustomForm> {
     );
   }
   void _buildNavigationButton(userId, clients_ref){
-      //save list
-      List<String> res = [];
       try {
-        callGetGroceryKeys(_items, userId, res);
-        clients_ref.set({
-          'list': jsonEncode(_items),
-          'sfsfd': jsonEncode(res),
-        });
-
-        ListStates.allProducts = _items; //after success - update list in local 'cache'
-
+        callGetGroceryKeysAndWriteInDB(_items, userId, clients_ref);
         //todo add this section after callGetDepartmentItems working
-         //callGetDepartmentsByOrder(userId, res);
-        // ListStates.allDepartments = res; //save all departments, by order
-        // ListStates.leftDepartments = res; //on beginning write all departments
-        // var nextDepartment = res[0];
+        callGetDepartmentsByOrder(userId);
+        String nextDepartment = ListStates.leftDepartments[0];
 
-        //get sub-list of first department todo - use nextDepartment insted of "dairy"
-        callGetDepartmentItems("Dairy", userId, res);
-        ListStates.currDepartmentProducts = res;
+        // //get sub-list of first department todo - use nextDepartment insted of "dairy"
+        callGetDepartmentItems("Meat", userId);
 
         //move to nav page
         Navigator.push(
@@ -203,7 +188,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
     }
 }
 
-Future<void> callGetGroceryKeys(products, userId, res) async {
+Future<void> callGetGroceryKeysAndWriteInDB(products, userId, clients_ref) async {
   // Initialize Firebase Functions
   FirebaseFunctions functions = FirebaseFunctions.instance;
 
@@ -216,7 +201,15 @@ Future<void> callGetGroceryKeys(products, userId, res) async {
     });
     // Handle the result of the function call
     print("result of GetGroceryKeys: ${result.data}, products: ${products}, userid: ${userId}");
-    res = result.data;
+
+    clients_ref.set({
+      'all_departments': '{${result.data.join(', ')}}',
+      'products': '{${products.join(', ')}}',
+    });
+    //save in local:
+    List<dynamic> dataList = result.data;
+    List<String> string_list = dataList.map((element) => element.toString()).toList();
+    ListStates.allProducts = string_list; //after success - update list in local 'cache'
   }
   on FirebaseFunctionsException catch (e) {
     // Handle any errors that occur during the function call
@@ -229,7 +222,7 @@ Future<void> callGetGroceryKeys(products, userId, res) async {
   }
 }
 
-Future<void> callGetDepartmentItems(departmentName, userId, res) async {
+Future<void> callGetDepartmentItems(departmentName, userId) async {
   // Initialize Firebase Functions
   FirebaseFunctions functions = FirebaseFunctions.instance;
 
@@ -242,7 +235,10 @@ Future<void> callGetDepartmentItems(departmentName, userId, res) async {
     });
     // Handle the result of the function call
     print("result of GetDepartmentItems: ${result.data}, departmentName: ${departmentName}, userid: ${userId}");
-    res = result.data;
+    //save in local:
+    List<dynamic> dataList = result.data;
+    List<String> string_list = dataList.map((element) => element.toString()).toList();
+    ListStates.currDepartmentProducts = string_list;
   }
   on FirebaseFunctionsException catch (e) {
     // Handle any errors that occur during the function call
@@ -255,19 +251,24 @@ Future<void> callGetDepartmentItems(departmentName, userId, res) async {
   }
 }
 
-Future<void> callGetDepartmentsByOrder(userId, res) async {
+Future<void> callGetDepartmentsByOrder(userId) async {
   // Initialize Firebase Functions
   FirebaseFunctions functions = FirebaseFunctions.instance;
 
   // Call the getGroceryKeys function with the products argument
-  HttpsCallable callable = functions.httpsCallable('getGroceryKeys');
+  HttpsCallable callable = functions.httpsCallable('getDepartmentsByOrder');
   try {
     final result = await callable.call(<String, dynamic>{
       'userId': userId,
     });
     // Handle the result of the function call
     print("result of GetDepartmentsByOrder: ${result.data}, userid: ${userId}");
-    res = result.data;
+    //save in local:
+    List<dynamic> dataList = result.data;
+    List<String> string_list = dataList.map((element) => element.toString()).toList();
+     ListStates.allDepartments = string_list; //save all departments, by order
+     ListStates.leftDepartments = string_list; //on beginning write all departments
+
   }
   on FirebaseFunctionsException catch (e) {
     // Handle any errors that occur during the function call
