@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'DepartmentList.dart';
 import 'naviFinish.dart';
 import 'naviInstructions.dart';
+import 'naviManager.dart';
 
 class Navigation extends StatefulWidget {
   @override

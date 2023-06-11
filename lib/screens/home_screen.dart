@@ -51,10 +51,11 @@ class _MyCustomFormState extends State<MyCustomForm> {
   List<String> _items = [];
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
-  void _addItem(input) {
+  void _addItem(input,_itemController) {
     final newIndex = _items.length;
     _items.add(input);
     _listKey.currentState!.insertItem(newIndex);
+    _itemController.text = '';
   }
 
   void _removeItem(int index) {
@@ -126,7 +127,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
             ),
             SizedBox(width: 10),
             IconButton(onPressed: (){
-              _addItem(_itemController.text);
+              _addItem(_itemController.text, _itemController);
             }, icon: Icon(Icons.add_shopping_cart_rounded, color: Colors.white,)),
           ]
       ),
@@ -162,15 +163,14 @@ class _MyCustomFormState extends State<MyCustomForm> {
         ),
     );
   }
-  void _buildNavigationButton(userId, clients_ref){
+  Future<void> _buildNavigationButton(userId, clients_ref) async {
       try {
-        callGetGroceryKeysAndWriteInDB(_items, userId, clients_ref);
-        //todo add this section after callGetDepartmentItems working
-        callGetDepartmentsByOrder(userId);
+        await callGetGroceryKeysAndWriteInDB(_items, userId, clients_ref);
+        await callGetDepartmentsByOrder(userId);
         String nextDepartment = ListStates.leftDepartments[0];
 
         // //get sub-list of first department todo - use nextDepartment insted of "dairy"
-        callGetDepartmentItems("Meat", userId);
+        await callGetDepartmentItems(nextDepartment, userId);
 
         //move to nav page
         Navigator.push(
@@ -178,117 +178,126 @@ class _MyCustomFormState extends State<MyCustomForm> {
           MaterialPageRoute(builder: (context) => Navigation()),
         );
       }
-      catch (e){ //todo - handle the error correctly
+      catch (e){
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text("a"),
+              content: Text('$e'),
             )
         );
       }
     }
 }
+  Future<void> callGetGroceryKeysAndWriteInDB(products, userId, clients_ref) async {
+    // Initialize Firebase Functions
+    FirebaseFunctions functions = FirebaseFunctions.instance;
 
-Future<void> callGetGroceryKeysAndWriteInDB(products, userId, clients_ref) async {
-  // Initialize Firebase Functions
-  FirebaseFunctions functions = FirebaseFunctions.instance;
+    // Call the getGroceryKeys function with the products argument
+    HttpsCallable callable = functions.httpsCallable('getGroceryKeys');
+    try {
+      final result = await callable.call(<String, dynamic>{
+        'products': products,
+        'userId': userId,
+      });
+      // Handle the result of the function call
+      print("result of GetGroceryKeys: ${result
+          .data}, products: ${products}, userid: ${userId}");
 
-  // Call the getGroceryKeys function with the products argument
-  HttpsCallable callable = functions.httpsCallable('getGroceryKeys');
-  try {
-    final result = await callable.call(<String, dynamic>{
-      'products': products,
-      'userId': userId,
-    });
-    // Handle the result of the function call
-    print("result of GetGroceryKeys: ${result.data}, products: ${products}, userid: ${userId}");
+      clients_ref.set({
+        'all_departments': '{${result.data.join(', ')}}',
+        'products': '{${products.join(', ')}}',
+      });
+      //save in local:
+      List<dynamic> dataList = result.data;
+      List<String> string_list = dataList.map((element) => element.toString())
+          .toList();
+      ListStates.allProducts = string_list; //after success - update list in local 'cache'
+      ListStates.userId = userId;
+    }
+    on FirebaseFunctionsException catch (e) {
+      // Handle any errors that occur during the function call
+      print('Error: ${e.code} ${e.message}');
+      //throw Exception("a");
+    }
+    catch (e) {
+      print(e);
+      //throw Exception("b");
+    }
+  }
 
-    clients_ref.set({
-      'all_departments': '{${result.data.join(', ')}}',
-      'products': '{${products.join(', ')}}',
-    });
-    //save in local:
-    List<dynamic> dataList = result.data;
-    List<String> string_list = dataList.map((element) => element.toString()).toList();
-    ListStates.allProducts = string_list; //after success - update list in local 'cache'
-  }
-  on FirebaseFunctionsException catch (e) {
-    // Handle any errors that occur during the function call
-    print('Error: ${e.code} ${e.message}');
-    //throw Exception("a");
-  }
-  catch (e) {
-    print(e);
-    //throw Exception("b");
-  }
-}
+  Future<void> callGetDepartmentItems(departmentName, userId) async {
 
-Future<void> callGetDepartmentItems(departmentName, userId) async {
-  // Initialize Firebase Functions
-  FirebaseFunctions functions = FirebaseFunctions.instance;
+    // Initialize Firebase Functions
+    FirebaseFunctions functions = FirebaseFunctions.instance;
 
-  // Call the getDepartmentItems function with the department,userID argument
-  HttpsCallable callable = functions.httpsCallable('getDepartmentItems');
-  try {
-    final result = await callable.call(<String, dynamic>{
-      'departmentName': departmentName,
-      'userId': userId,
-    });
-    // Handle the result of the function call
-    print("result of GetDepartmentItems: ${result.data}, departmentName: ${departmentName}, userid: ${userId}");
-    //save in local:
-    List<dynamic> dataList = result.data;
-    List<String> string_list = dataList.map((element) => element.toString()).toList();
-    ListStates.currDepartmentProducts = string_list;
+    // Call the getDepartmentItems function with the department,userID argument
+    HttpsCallable callable = functions.httpsCallable('getDepartmentItems');
+    try {
+      final result = await callable.call(<String, dynamic>{
+        'departmentName': departmentName,
+        'userId': userId,
+      });
+      // Handle the result of the function call
+      print("result of GetDepartmentItems: ${result
+          .data}, departmentName: ${departmentName}, userid: ${userId}");
+      //save in local:
+      List<dynamic> dataList = result.data;
+      List<String> string_list = dataList.map((element) => element.toString())
+          .toList();
+      ListStates.currDepartmentProducts = string_list;
+    }
+    on FirebaseFunctionsException catch (e) {
+      // Handle any errors that occur during the function call
+      print('Error: ${e.code} ${e.message}');
+      //throw Exception("a");
+    }
+    catch (e) {
+      print(e);
+      //throw Exception("b");
+    }
   }
-  on FirebaseFunctionsException catch (e) {
-    // Handle any errors that occur during the function call
-    print('Error: ${e.code} ${e.message}');
-    //throw Exception("a");
-  }
-  catch (e) {
-    print(e);
-    //throw Exception("b");
-  }
-}
 
-Future<void> callGetDepartmentsByOrder(userId) async {
-  // Initialize Firebase Functions
-  FirebaseFunctions functions = FirebaseFunctions.instance;
+  Future<void> callGetDepartmentsByOrder(userId) async {
+    // Initialize Firebase Functions
+    FirebaseFunctions functions = FirebaseFunctions.instance;
 
-  // Call the getGroceryKeys function with the products argument
-  HttpsCallable callable = functions.httpsCallable('getDepartmentsByOrder');
-  try {
-    final result = await callable.call(<String, dynamic>{
-      'userId': userId,
-    });
-    // Handle the result of the function call
-    print("result of GetDepartmentsByOrder: ${result.data}, userid: ${userId}");
-    //save in local:
-    List<dynamic> dataList = result.data;
-    List<String> string_list = dataList.map((element) => element.toString()).toList();
-     ListStates.allDepartments = string_list; //save all departments, by order
-     ListStates.leftDepartments = string_list; //on beginning write all departments
+    // Call the getGroceryKeys function with the products argument
+    HttpsCallable callable = functions.httpsCallable('getDepartmentsByOrder');
+    try {
+      final result = await callable.call(<String, dynamic>{
+        'userId': userId,
+      });
+      // Handle the result of the function call
+      print(
+          "result of GetDepartmentsByOrder: ${result.data}, userid: ${userId}");
+      //save in local:
+      List<dynamic> dataList = result.data;
+      List<String> string_list = dataList.map((element) => element.toString())
+          .toList();
+      ListStates.allDepartments = string_list; //save all departments, by order
+      ListStates.leftDepartments =
+          string_list; //on beginning write all departments
 
-  }
-  on FirebaseFunctionsException catch (e) {
-    // Handle any errors that occur during the function call
-    print('Error: ${e.code} ${e.message}');
-    //throw Exception("a");
-  }
-  catch (e) {
-    print(e);
-    //throw Exception("b");
-  }
-}
+    }
+    on FirebaseFunctionsException catch (e) {
+      // Handle any errors that occur during the function call
+      print('Error: ${e.code} ${e.message}');
+      //throw Exception("a");
+    }
+    catch (e) {
+      print(e);
+      //throw Exception("b");
+    }
 
-void userNotSignedIn(BuildContext context){
-  //go to sign in if user not signed in
-  FirebaseAuth auth = FirebaseAuth.instance;
-  if (auth.currentUser == null) {
-    // Navigate to sign in screen
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => SignInScreen()), //todo - change back to navigation
-    );
+  void userNotSignedIn(BuildContext context) {
+    //go to sign in if user not signed in
+    FirebaseAuth auth = FirebaseAuth.instance;
+    if (auth.currentUser == null) {
+      // Navigate to sign in screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) =>
+            SignInScreen()), //todo - change back to navigation
+      );
+    }
   }
 }

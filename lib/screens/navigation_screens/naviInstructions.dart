@@ -4,6 +4,7 @@ import 'package:super_fun/screens/navigation_screens/naviManager.dart';
 
 import '../../reusable_widgets/reusable_widget.dart';
 import '../../utils/colors.dart';
+import '../home_screen.dart';
 class naviInstructions extends StatefulWidget {
   naviInstructions({required this.callbackFunction});
   final Function callbackFunction;
@@ -12,6 +13,14 @@ class naviInstructions extends StatefulWidget {
 }
 
 class _naviInstructions extends State<naviInstructions> {
+
+  @override
+  void initState() { //todo - maybe if there is slow internet may cause problems. support await
+    super.initState();
+    // Call your function here
+    callGetDepartmentItems(ListStates.leftDepartments[0],ListStates.userId);
+  }
+
   _naviInstructions({required this.callbackFunction});
   final Function callbackFunction;
   @override
