@@ -168,9 +168,11 @@ class _MyCustomFormState extends State<MyCustomForm> {
         await callGetGroceryKeysAndWriteInDB(_items, userId, clients_ref);
         await callGetDepartmentsByOrder(userId);
         String nextDepartment = ListStates.leftDepartments[0];
-
-        // //get sub-list of first department todo - use nextDepartment insted of "dairy"
         await callGetDepartmentItems(nextDepartment, userId);
+
+        // todo - implement in right place
+        await callisProductExist('milk');
+
 
         //move to nav page
         Navigator.push(
@@ -299,5 +301,31 @@ class _MyCustomFormState extends State<MyCustomForm> {
             SignInScreen()), //todo - change back to navigation
       );
     }
+  }
+}
+
+Future<void> callisProductExist(product) async {
+
+  // Initialize Firebase Functions
+  FirebaseFunctions functions = FirebaseFunctions.instance;
+
+  // Call the getDepartmentItems function with the department,userID argument
+  HttpsCallable callable = functions.httpsCallable('isProductExist');
+  try {
+    final result = await callable.call(<String, dynamic>{
+      'product': product,
+    });
+    // Handle the result of the function call
+    print("result of isProductExist: ${result
+        .data}, product: ${product}");
+  }
+  on FirebaseFunctionsException catch (e) {
+    // Handle any errors that occur during the function call
+    print('Error: ${e.code} ${e.message}');
+    //throw Exception("a");
+  }
+  catch (e) {
+    print(e);
+    //throw Exception("b");
   }
 }
