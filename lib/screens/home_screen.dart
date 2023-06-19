@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -51,11 +50,20 @@ class _MyCustomFormState extends State<MyCustomForm> {
   List<String> _items = [];
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
-  void _addItem(input,_itemController) {
-    final newIndex = _items.length;
-    _items.add(input);
-    _listKey.currentState!.insertItem(newIndex);
-    _itemController.text = '';
+  Future<void> _addItem(input,_itemController) async {
+    try{
+      await callisProductExist(input);
+      final newIndex = _items.length;
+      _items.add(input);
+      _listKey.currentState!.insertItem(newIndex);
+      _itemController.text = '';
+    }catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("the product: $input doesn't exist"),
+          )
+      );
+      _itemController.text = '';}
   }
 
   void _removeItem(int index) {
@@ -171,7 +179,7 @@ class _MyCustomFormState extends State<MyCustomForm> {
         await callGetDepartmentItems(nextDepartment, userId);
 
         // todo - implement in right place
-        await callisProductExist('milk');
+        await callisProductExist('fis');
 
 
         //move to nav page
@@ -322,10 +330,10 @@ Future<void> callisProductExist(product) async {
   on FirebaseFunctionsException catch (e) {
     // Handle any errors that occur during the function call
     print('Error: ${e.code} ${e.message}');
-    //throw Exception("a");
+    throw Exception(e.message);
   }
   catch (e) {
-    print(e);
+    throw Exception(e);
     //throw Exception("b");
   }
 }
